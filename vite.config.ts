@@ -8,6 +8,9 @@ export default defineConfig(({ mode }) => ({
   server: {
     host: "::",
     port: 8080,
+    proxy: {
+      '/ask': 'http://localhost:8000', // Redirige peticiones /ask al API Gateway
+    },
   },
   plugins: [
     react(),
