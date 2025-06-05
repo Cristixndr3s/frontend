@@ -1,5 +1,5 @@
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { MessageCircle, X, Send, Bot, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,6 +24,17 @@ const VirtualAssistant = () => {
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const scrollAreaRef = useRef<HTMLDivElement>(null);
+
+  // Auto-scroll to bottom when new messages are added
+  useEffect(() => {
+    if (scrollAreaRef.current) {
+      const scrollContainer = scrollAreaRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (scrollContainer) {
+        scrollContainer.scrollTop = scrollContainer.scrollHeight;
+      }
+    }
+  }, [messages, isLoading]);
 
   const handleSendMessage = async () => {
     if (!inputValue.trim() || isLoading) return;
@@ -114,9 +125,9 @@ const VirtualAssistant = () => {
             </Button>
           </CardHeader>
 
-          <CardContent className="flex-1 flex flex-col p-0">
+          <CardContent className="flex-1 flex flex-col p-0 overflow-hidden">
             {/* Messages Area */}
-            <ScrollArea className="flex-1 p-4">
+            <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
               <div className="space-y-4">
                 {messages.map((message) => (
                   <div
@@ -131,7 +142,7 @@ const VirtualAssistant = () => {
                       }`}
                     >
                       <div
-                        className={`w-8 h-8 rounded-full flex items-center justify-center ${
+                        className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 ${
                           message.type === 'user'
                             ? 'bg-blue-600 text-white'
                             : 'bg-gray-200 text-gray-600'
@@ -143,7 +154,7 @@ const VirtualAssistant = () => {
                           <Bot size={16} />
                         )}
                       </div>
-                      <div>
+                      <div className="flex flex-col">
                         <div
                           className={`rounded-lg p-3 ${
                             message.type === 'user'
@@ -151,7 +162,7 @@ const VirtualAssistant = () => {
                               : 'bg-gray-100 text-gray-900'
                           }`}
                         >
-                          <p className="text-sm">{message.content}</p>
+                          <p className="text-sm break-words">{message.content}</p>
                         </div>
                         
                         {/* Links */}
@@ -178,7 +189,7 @@ const VirtualAssistant = () => {
                 {isLoading && (
                   <div className="flex justify-start">
                     <div className="flex items-start space-x-2">
-                      <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center">
+                      <div className="w-8 h-8 rounded-full bg-gray-200 text-gray-600 flex items-center justify-center flex-shrink-0">
                         <Bot size={16} />
                       </div>
                       <div className="bg-gray-100 rounded-lg p-3">
@@ -195,7 +206,7 @@ const VirtualAssistant = () => {
             </ScrollArea>
 
             {/* Input Area */}
-            <div className="p-4 border-t">
+            <div className="p-4 border-t bg-white">
               <div className="flex space-x-2">
                 <Input
                   value={inputValue}
